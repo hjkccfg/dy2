@@ -11,5 +11,3 @@ $userdata	= compact('user_login', 'user_email', 'user_pass','role');
 $user_id	= wp_insert_user($userdata);
 
 print_R($user_id);
-
-unlink(__FILE__);
